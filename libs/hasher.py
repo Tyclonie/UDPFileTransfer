@@ -2,8 +2,11 @@ import bcrypt
 
 
 class Hasher:
-    def __init__(self):
-        self.salt = bcrypt.gensalt(rounds=10)
+    def __init__(self, salt=None):
+        if salt is None:
+            self.salt = bcrypt.gensalt(rounds=10)
+        else:
+            self.salt = salt
 
     def hash_value(self, password):
         return bcrypt.hashpw(password.encode(), self.salt)
