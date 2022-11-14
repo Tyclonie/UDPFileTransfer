@@ -3,13 +3,12 @@ import bcrypt
 
 class Hasher:
     def __init__(self):
-        self.salt = bcrypt.gensalt()
+        self.salt = bcrypt.gensalt(rounds=10)
 
-    def digest(self, string):
-        self.hasher = hashlib.sha512(string.encode())
-        return self.hasher.hexdigest()
+    def hash_value(self, password):
+        return bcrypt.hashpw(password.encode(), self.salt)
 
 
 if __name__ == "__main__":
     hasher = Hasher()
-    print(hasher.digest("lol"))
+    print(hasher.hash_value("lolipop"))
