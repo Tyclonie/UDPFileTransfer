@@ -16,6 +16,9 @@ class Server:
     def send_data(self, data):
         self.server.sendto(data.encode(), self.client)
 
+    def send_data_pre_encoded(self, data):
+        self.server.sendto(data, self.client)
+
     def set_client(self, client_info):
         self.server.sendto("*accepted".encode(), client_info)
         self.client = client_info
@@ -84,10 +87,9 @@ Your one time password is: {Fore.GREEN}{self.setup_helper.one_time_password}{For
         self.server.send_data(f"{filename[-filename[::-1].index('.'):]} {str(num_of_packs)}")
         for x in range(num_of_packs):
             try:
-                print(str([str(x), data[128 * x:128 * (x + 1) - 1]]))
-                self.server.send_data(str([str(x), data[128 * x:128 * (x + 1) - 1]]))
+                self.server.send_data_pre_encoded(data[128 * x:(128 * (x + 1))] + f" | {str(x)}".encode())
             except IndexError:
-                self.server.send_data(str([str(x), data[128 * (num_of_packs - 1):]]))
+                self.server.send_data_pre_encoded(data[128 * (num_of_packs - 1):] + str(x).encode())
 
     def maintain_server(self):
         while True:

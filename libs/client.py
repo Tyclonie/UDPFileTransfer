@@ -23,6 +23,12 @@ class Client:
             received, address_from = self.client.recvfrom(1024)
         return received.decode()
 
+    def wait_for_data_no_decode(self):
+        received, address_from = self.client.recvfrom(1024)
+        while address_from != self.server_info:
+            received, address_from = self.client.recvfrom(1024)
+        return received
+
     def send_data(self, data):
         self.client.sendto(data.encode(), self.server_info)
         
@@ -60,7 +66,7 @@ class ClientSideApplicationHandler:
                 elif text_response.startswith("*load"):
                     self.load_new_folder_to_command_line(utilites.rebuild_list(text_response[6:]))
             print("\ncd [dir] - Change dir, '..' to go back | copy [file/dir] - Copy specified file/folder")
-            what_to_do_now = input("Enter command:")
+            what_to_do_now = input("Enter command: ")
             while not what_to_do_now.startswith("cd") and not what_to_do_now.startswith("copy"):
                 what_to_do_now = input("Enter valid command:")
             if what_to_do_now.startswith("cd"):
@@ -68,26 +74,18 @@ class ClientSideApplicationHandler:
             elif what_to_do_now.startswith("copy"):
                 self.client.send_data(f"*download {what_to_do_now[3:]}")
                 data = self.client.wait_for_data()
-                file_data = [None] * int(data.split(" ")[1])
+                sorted_packs = [None] * int(data.split(" ")[1])
                 file_ext = data.split(" ")[0]
                 for _ in range(int(data.split(" ")[1])):
-                    bytes_received = self.client.wait_for_data()
-                    bytes_received = utilites.rebuild_pack(bytes_received)
-                    file_data[int(bytes_received[0])] = bytes_received[1]
-                while None in file_data:
-                    empty_index = file_data.index(None)
-                    self.client.send_data(f"*need_pack {str(empty_index)}")
-                    bytes_received = client.wait_for_data()
-                    bytes_received = utilites.rebuild_pack(bytes_received)
-                    if bytes_received[0] == empty_index:
-                        file_data[empty_index] = bytes_received[1]
-                bytes_to_write = ""
-                for data_pack in file_data:
-                    bytes_to_write += data_pack
+                    bytes_received = self.client.wait_for_data_no_decode()[::-1]
+                    pack_data = bytes_received[bytes_received.index(b" | ") + 3:][::-1]
+                    pack_num = bytes_received[:bytes_received.index(b" | ")][::-1]
+                    sorted_packs[int(pack_num.decode())] = pack_data
+                bytes_to_write = b""
+                for pack in sorted_packs:
+                    bytes_to_write += pack
                 with open(os.getcwd() + f"/output.{file_ext}", "wb") as f:
-                    print(os.getcwd() + f"/output.{file_ext}")
-                    f.write(bytes_to_write.encode())
-                print("done")
+                    f.write(bytes_to_write)
 
     def start_connection(self):
         self.client.ask_to_be_trusted(self.password)
