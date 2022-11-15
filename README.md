@@ -1,7 +1,7 @@
 # UDP File Transfer
 - FTP (File Transfer Protocol) uses the TCP protocol to tranfer files within a network. I present to you a program which uses the UDP protocol to transfer files across networks.
 
-## Use
+## How to use
 - Run main.py and setup a server on your server by selecting option 1, you will need a client to complete the setup so start a client on another device by selecting option 2. Complete the instructions displayed on the screen, but enter the port on the server first!
 - If you need a second client to be able to connect to the server at a different time, you can go into the first client, go to /opt/client_data and open the text file named as the servers IP address you used to connect. Copy the salt (the contents of the text file) and run the main.py on the client you want to setup, select option 3 and follow the steps on screen.
 
