@@ -4,7 +4,7 @@ import bcrypt
 class Hasher:
     def __init__(self, salt=None):
         if salt is None:
-            self.salt = bcrypt.gensalt(rounds=10)
+            self.salt = bcrypt.gensalt(rounds=16)
         else:
             self.salt = salt
 

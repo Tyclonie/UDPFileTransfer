@@ -98,24 +98,29 @@ class ClientSideApplicationHandler:
             print("Interaction authorised.")
 
     def validate_filesystem(self):
+        if "opt" not in os.listdir(os.getcwd()):
+            os.mkdir(os.getcwd() + "/opt")
         if "client_data" not in os.listdir(os.getcwd() + "/opt"):
             os.mkdir(os.getcwd() + "/opt/client_data")
         if f"{self.connect_to_information[0]}.txt" not in os.listdir(os.getcwd() + "/opt/client_data/"):
+            self.first_time = True
             with open(os.getcwd() + f"/opt/client_data/{self.connect_to_information[0]}.txt", "w") as f:
                 f.write("")
 
     def handle_client_startup(self):
         self.connect_to_information = (input("Enter IP to connect to: "), int(input("Enter server port: ")))
-        self.password = input("Enter server password: ")
+        self.password = input("Enter server password (or one time password): ")
         self.validate_filesystem()
         if f"{self.connect_to_information[0]}.txt" in os.listdir(os.getcwd() + "/opt/client_data"):
             with open(os.getcwd() + f"/opt/client_data/{self.connect_to_information[0]}.txt", "rb") as f:
                 hash_maker = hasher.Hasher(f.read())
-            self.password = hash_maker.hash_value(self.password).decode()
+            if not self.first_time:
+                self.password = hash_maker.hash_value(self.password).decode()
         self.client = Client(self.connect_to_information)
         self.client.create_socket_and_bind()
 
     def __init__(self):
+        self.first_time = True
         self.client = None
         self.password = None
         self.connect_to_information = None
