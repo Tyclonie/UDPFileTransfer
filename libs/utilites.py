@@ -1,3 +1,3 @@
 def rebuild_list(string):
-    return string[3:-2].split("', '")
+    return string[2:-2].split("', '")
 

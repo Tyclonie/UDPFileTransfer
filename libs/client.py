@@ -5,12 +5,8 @@ from libs import hasher, cli_handler, utilites
 
 class Client:
     def wait_for_trust_response(self):
-        print("Waiting for trust response")
         received, address_from = self.client.recvfrom(1024)
-        print(received)
-        print("Got trust response")
         while address_from != self.server_info:
-            print("received data, however its not from the server.")
             received, address_from = self.client.recvfrom(1024)
         return received.decode()
 
@@ -42,10 +38,11 @@ class Client:
 
 
 class ClientSideApplicationHandler:
-    def load_new_folder_to_command_line(self, listed_directory):
+    def update_command_line(self, listed_directory):
         self.command_line_handler.clear_command_line()
         for item in listed_directory:
             print(item)
+        print("\ncd [dir] - Change dir, '..' to go back | copy [file/dir] - Copy specified file/folder")
 
     def handle_server_setup(self):
         hash_maker = hasher.Hasher()
@@ -58,25 +55,26 @@ class ClientSideApplicationHandler:
 
     def maintain_application(self):
         while True:
+            # HANDLE COMMANDS FROM SERVER
             text_response = self.client.wait_for_data()
             if text_response.startswith("*"):
                 if text_response.startswith("*handle_setup"):
                     self.handle_server_setup()
                     break
                 elif text_response.startswith("*load"):
-                    self.load_new_folder_to_command_line(utilites.rebuild_list(text_response[6:]))
-            print("\ncd [dir] - Change dir, '..' to go back | copy [file/dir] - Copy specified file/folder")
+                    self.update_command_line(utilites.rebuild_list(text_response[6:]))
+            # HANDLE COMMANDS TO SERVER
             what_to_do_now = input("Enter command: ")
             while not what_to_do_now.startswith("cd") and not what_to_do_now.startswith("copy"):
                 what_to_do_now = input("Enter valid command: ")
             if what_to_do_now.startswith("cd"):
                 self.client.send_data(f"*load_dir {what_to_do_now[3:]}")
             elif what_to_do_now.startswith("copy"):
-                self.client.send_data(f"*download {what_to_do_now[3:]}")
-                data = self.client.wait_for_data()
-                sorted_packs = [None] * int(data.split(" ")[1])
-                file_ext = data.split(" ")[0]
-                for _ in range(int(data.split(" ")[1])):
+                file_to_copy = what_to_do_now[5:]
+                self.client.send_data(f"*download {file_to_copy}")
+                total_num_of_packs = int(self.client.wait_for_data())
+                sorted_packs = [None] * total_num_of_packs
+                for _ in range(total_num_of_packs):
                     bytes_received = self.client.wait_for_data_no_decode()[::-1]
                     pack_data = bytes_received[bytes_received.index(b" | ") + 3:][::-1]
                     pack_num = bytes_received[:bytes_received.index(b" | ")][::-1]
@@ -84,7 +82,7 @@ class ClientSideApplicationHandler:
                 bytes_to_write = b""
                 for pack in sorted_packs:
                     bytes_to_write += pack
-                with open(os.getcwd() + f"/{what_to_do_now[5:-len(file_ext)-1]}.{file_ext}", "wb") as f:
+                with open(os.getcwd() + f"/{file_to_copy}", "wb") as f:
                     f.write(bytes_to_write)
 
     def start_connection(self):

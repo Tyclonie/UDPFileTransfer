@@ -84,7 +84,7 @@ Your one time password is: {Fore.GREEN}{self.setup_helper.one_time_password}{For
         num_of_packs = num_of_bytes // 128
         if num_of_bytes % 128 != 0:
             num_of_packs += 1
-        self.server.send_data(f"{filename[-filename[::-1].index('.'):]} {str(num_of_packs)}")
+        self.server.send_data(str(num_of_packs))
         for x in range(num_of_packs):
             try:
                 self.server.send_data_pre_encoded(data[128 * x:(128 * (x + 1))] + f" | {str(x)}".encode())
@@ -98,7 +98,8 @@ Your one time password is: {Fore.GREEN}{self.setup_helper.one_time_password}{For
                 if received.startswith("*load_dir"):
                     pass
                 elif received.startswith("*download"):
-                    self.handle_download(received[12:])
+                    self.handle_download(received[10:])
+                    self.server.send_data(f"*load {str(os.listdir(self.cwd))}")
 
     def handle_server_startup(self):
         self.server = Server(int(input("Enter port for the server: ")))

@@ -1,10 +1,10 @@
-from libs import server, client
+from libs import server, client, client_setup
 
 class ApplicationHandler:
     def __init__(self):
         self.running_application = None
         self.selected = None
-        self.options = ["Server", "Client"]
+        self.options = ["Server", "Client", "Setup Client To Join Pre-Setup Server"]
 
     def display_options(self):
         for num in range(len(self.options)):
@@ -18,6 +18,8 @@ class ApplicationHandler:
             self.running_application = server.ServerSideApplicationHandler()
         elif self.options[self.selected] == "Client":
             self.running_application = client.ClientSideApplicationHandler()
+        elif self.options[self.selected] == "Setup Client To Join Pre-Setup Server":
+            self.running_application = client_setup.ClientSetupHandler()
 
 
 def main():
