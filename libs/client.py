@@ -107,11 +107,11 @@ class ClientSideApplicationHandler:
     def handle_client_startup(self):
         self.connect_to_information = (input("Enter IP to connect to: "), int(input("Enter server port: ")))
         self.password = input("Enter server password: ")
+        self.validate_filesystem()
         if f"{self.connect_to_information[0]}.txt" in os.listdir(os.getcwd() + "/opt/client_data"):
             with open(os.getcwd() + f"/opt/client_data/{self.connect_to_information[0]}.txt", "rb") as f:
                 hash_maker = hasher.Hasher(f.read())
             self.password = hash_maker.hash_value(self.password).decode()
-        self.validate_filesystem()
         self.client = Client(self.connect_to_information)
         self.client.create_socket_and_bind()
 
