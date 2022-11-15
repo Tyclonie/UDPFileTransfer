@@ -120,7 +120,7 @@ class ClientSideApplicationHandler:
         self.client.create_socket_and_bind()
 
     def __init__(self):
-        self.first_time = True
+        self.first_time = False
         self.client = None
         self.password = None
         self.connect_to_information = None

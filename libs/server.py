@@ -122,6 +122,8 @@ Using port: {str(self.server.port)}""")
         self.setup_helper = None
         self.command_line_handler = cli_handler.CommandLineHandler()
         self.command_line_handler.clear_command_line()
+        if "opt" not in os.listdir(os.getcwd()):
+            os.mkdir(os.getcwd() + "/opt")
         if "server_configuration.txt" not in os.listdir(os.getcwd() + "/opt"):
             self.handle_setup()
         else:
