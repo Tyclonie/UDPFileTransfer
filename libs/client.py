@@ -68,7 +68,7 @@ class ClientSideApplicationHandler:
             print("\ncd [dir] - Change dir, '..' to go back | copy [file/dir] - Copy specified file/folder")
             what_to_do_now = input("Enter command: ")
             while not what_to_do_now.startswith("cd") and not what_to_do_now.startswith("copy"):
-                what_to_do_now = input("Enter valid command:")
+                what_to_do_now = input("Enter valid command: ")
             if what_to_do_now.startswith("cd"):
                 self.client.send_data(f"*load_dir {what_to_do_now[3:]}")
             elif what_to_do_now.startswith("copy"):
@@ -84,7 +84,7 @@ class ClientSideApplicationHandler:
                 bytes_to_write = b""
                 for pack in sorted_packs:
                     bytes_to_write += pack
-                with open(os.getcwd() + f"/output.{file_ext}", "wb") as f:
+                with open(os.getcwd() + f"/{what_to_do_now[5:-len(file_ext)-1]}.{file_ext}", "wb") as f:
                     f.write(bytes_to_write)
 
     def start_connection(self):
