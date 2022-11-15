@@ -1,4 +1,5 @@
 # UDP File Transfer
+- This is PRE-RELEASE and is currently not fully functional and is feature limited!
 - FTP (File Transfer Protocol) uses the TCP protocol to tranfer files within a network. I present to you a program which uses the UDP protocol to transfer files across networks.
 
 ## How to use
